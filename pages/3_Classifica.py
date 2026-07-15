@@ -21,13 +21,13 @@ with st.spinner("Caricamento classifica"):
         df.loc[2, "Colore"] = "#CD7F32"  # bronzo
 
     fig = px.bar(
-        df.sort_values("Punteggio"),
-        x="Punteggio",
-        y="Giocatore",
-        orientation="h",
-        text="Punteggio",
-        color="Colore",
-        color_discrete_map="identity"
+    df.sort_values("Punteggio"),
+    x="Punteggio",
+    y="Giocatore",
+    orientation="h",
+    text="Punteggio",
+    color="Colore",
+    color_discrete_map="identity"
     )
 
     fig.update_layout(
@@ -35,8 +35,34 @@ with st.spinner("Caricamento classifica"):
         template="plotly_white",
         showlegend=False,
         height=max(400, len(df) * 40),
+
+        # margins
+        margin=dict(l=20, r=20, t=60, b=20),
+
+        # smaller labels
+        yaxis=dict(
+            automargin=True,
+            tickfont=dict(size=10)
+        ),
+        xaxis=dict(
+            automargin=True,
+            tickfont=dict(size=10)
+        )
     )
 
-    fig.update_traces(textposition="outside")
+    fig.update_traces(
+        textposition="outside",
+        textfont=dict(size=10),
+        cliponaxis=False
+    )
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(
+        fig,
+        use_container_width=True,
+        config={
+            "responsive": True,
+            "scrollZoom": False,      # disable pinch zoom
+            "displayModeBar": False,  # hide toolbar
+            "staticPlot": True        # completely disable interactions
+        }
+    )
