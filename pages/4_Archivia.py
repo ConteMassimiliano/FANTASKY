@@ -20,7 +20,7 @@ def popup_archivia():
                 
                 with st.spinner("Reindirizzamento a classifica..."):
                     time.sleep(1)
-                    st.switch_page("pages/2_Classifica.py")
+                    st.switch_page("pages/3_Classifica.py")
             else:
                 st.error("Password errata.")
 
