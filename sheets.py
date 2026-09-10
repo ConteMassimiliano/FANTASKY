@@ -250,6 +250,67 @@ def save_picks(giocatore, azioni):
 
     ws.update_cells(cell_list)
 
+def salva_pronostici():
+    ws_selezione = worksheet("SELEZIONE")
+    ws_pronostici = worksheet("PRONOSTICI")
+    
+    # Copia solo la parte delle selezioni dei giocatori
+    rng = to_a1_range(jump_azione - 1, ultima_azione + righe_bonus_malus, jump_giocatri - 1, ultimo_giocatore)
+    data = ws_selezione.get(rng)
+    
+    # Prima pulisce il foglio PRONOSTICI
+    ws_pronostici.clear()
+    
+    # Scrive i dati
+    ws_pronostici.update(data, value_input_option='USER_ENTERED')
+
+def get_punteggi_azioni():
+    ws_parametri = worksheet("PARAMETRI_PUNTEGGIO")
+    ws_selezione = worksheet("SELEZIONE")
+    
+    # Legge i dati dal foglio PARAMETRI_PUNTEGGIO
+    data = ws_parametri.get_all_values()
+    if len(data) < 5:
+        return pd.DataFrame()
+    
+    # Salta le prime 4 righe (metadata) e usa la riga 5 come header
+    header_row = 4  # riga 5 (0-indexed)
+    df_parametri = pd.DataFrame(data[header_row+1:], columns=data[header_row])
+    
+    # Legge le azioni dal foglio SELEZIONE per il mapping codice -> nome
+    values = _get_sheet_values()
+    header = values[0]
+    records = [
+        dict(zip(header, row))
+        for row in values[1:]
+        if len(row) > 0
+    ]
+    
+    # Crea mapping codice -> nome azione
+    codice_to_nome = {r['CODICE']: r['AZIONE'] for r in records if r.get('CODICE')}
+    
+    # Filtra solo i codici presenti in PARAMETRI_PUNTEGGIO
+    df_parametri = df_parametri[df_parametri['Codice azione'].isin(codice_to_nome.keys())]
+    
+    # Aggiunge il nome dell'azione
+    df_parametri['Azione'] = df_parametri['Codice azione'].map(codice_to_nome)
+    
+    # Rinomina le colonne per il grafico
+    df_result = df_parametri.rename(columns={
+        'N. selezioni': 'Selezioni',
+        'Punteggio': 'Punteggio'
+    })
+    
+    # Seleziona solo le colonne necessarie
+    df_result = df_result[['Azione', 'Punteggio', 'Selezioni']]
+    
+    return df_result
+
+def refresh_cache():
+    global _CACHE
+    _CACHE["timestamp"] = 0  # Forza il refresh della cache
+    _CACHE["values"] = None
+
 def to_a1_range(r1, r2, c1, c2):
     start = rowcol_to_a1(r1 + 1, c1 + 1)
     end = rowcol_to_a1(r2, c2)
@@ -259,12 +320,29 @@ def archivia():
     ws_storico = worksheet("STORICO")
     ws_selezione = worksheet("SELEZIONE")
     ws_totale = worksheet("TOTALE")
+    ws_pronostici = worksheet("PRONOSTICI")
 
     azioni = get_actions(bonus_malus=True)
     giocatori = get_players()
     
 
     last_week = max([r['Settimana'] for r in ws_storico.get_all_records()] + [0])
+    
+    ############################# RIPRISTINA PRONOSTICI #############################
+    # Copia i pronostici salvati nel foglio SELEZIONE
+    rng = to_a1_range(jump_azione - 1, ultima_azione + righe_bonus_malus, jump_giocatri - 1, ultimo_giocatore)
+    data = ws_pronostici.get(rng)
+    
+    cell_list = ws_selezione.range(jump_azione, jump_giocatri, ultima_azione + righe_bonus_malus, ultimo_giocatore)
+    
+    for i, cell in enumerate(cell_list):
+        row_idx = i // (ultimo_giocatore - jump_giocatri + 1)
+        col_idx = i % (ultimo_giocatore - jump_giocatri + 1)
+        if row_idx < len(data) and col_idx < len(data[row_idx]):
+            cell.value = data[row_idx][col_idx]
+    
+    ws_selezione.update_cells(cell_list, value_input_option='USER_ENTERED')
+    ##########################################################
     
 
 
@@ -320,5 +398,9 @@ def archivia():
         cell.value = 'NO'
 
     ws_selezione.update_cells(cell_list)
+    ##########################################################
+    
+    ############################# REFRESH CACHE #############################
+    refresh_cache()
     ##########################################################
 

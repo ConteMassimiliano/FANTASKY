@@ -1,5 +1,5 @@
 import streamlit as st
-from sheets import get_actions, get_prove, save_prove
+from sheets import get_actions, get_prove, save_prove, refresh_cache
 
 st.title("Registra eventi avvenuti")
 
@@ -22,4 +22,5 @@ if st.button("Registra eventi"):
         st.error("Devi selezionare almeno un'azione")
     else:
         save_prove(selected_prova, selected_azioni)
+        refresh_cache()  # Refresh cache per aggiornare i punteggi dinamici
         st.success("Evento registrato!")

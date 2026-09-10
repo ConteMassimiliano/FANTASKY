@@ -1,6 +1,6 @@
 
 import streamlit as st
-from sheets import get_actions, save_picks
+from sheets import get_actions_no_last5, save_picks, refresh_cache
 
 st.title("🎯 Giocata")
 
@@ -13,7 +13,7 @@ giocatore = st.session_state["giocatore"]
 st.write(f"Giocatore: **{giocatore}**")
 
 with st.spinner("..."):
-    azioni = get_actions()
+    azioni = get_actions_no_last5(giocatore)
 
 selected = st.multiselect(
     "Scegli esattamente 5 azioni",
@@ -28,5 +28,6 @@ if st.button("Salva giocata"):
     else:
         with st.spinner("Salvataggio in corso..."):
             save_picks(giocatore, selected)
+            refresh_cache()  # Refresh cache per aggiornare i punteggi dinamici
 
         st.success("Giocata salvata!")
