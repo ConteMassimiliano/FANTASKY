@@ -110,7 +110,7 @@ def get_actions_no_last5(giocatore):
     last_week = max([r['Settimana'] for r in all_records] + [0])
     df = pd.DataFrame(all_records).query(f'Settimana == {last_week}')
 
-    last5 = set(df.query(f'Giocatore == {giocatore}'))
+    last5 = set(df.query(f'Giocatore == "{giocatore}"'))
 
     return set(azioni) - last5
 
@@ -255,7 +255,7 @@ def salva_pronostici():
     ws_pronostici = worksheet("PRONOSTICI")
     
     # Copia solo la parte delle selezioni dei giocatori
-    rng = to_a1_range(jump_azione - 1, ultima_azione + righe_bonus_malus, jump_giocatri - 1, ultimo_giocatore)
+    rng = to_a1_range(jump_azione - 1, ultima_azione, jump_giocatri, ultimo_giocatore)
     data = ws_selezione.get(rng)
     
     # Prima pulisce il foglio PRONOSTICI
@@ -330,7 +330,7 @@ def archivia():
     
     ############################# RIPRISTINA PRONOSTICI #############################
     # Copia i pronostici salvati nel foglio SELEZIONE
-    rng = to_a1_range(jump_azione - 1, ultima_azione + righe_bonus_malus, jump_giocatri - 1, ultimo_giocatore)
+    rng = to_a1_range(jump_azione - 1, ultima_azione, jump_giocatri, ultimo_giocatore)
     data = ws_pronostici.get(rng)
     
     cell_list = ws_selezione.range(jump_azione, jump_giocatri, ultima_azione + righe_bonus_malus, ultimo_giocatore)
