@@ -322,8 +322,19 @@ def archivia():
     ws_totale = worksheet("TOTALE")
     ws_pronostici = worksheet("PRONOSTICI")
 
-    azioni = get_actions(bonus_malus=True)
-    giocatori = get_players()
+    # Leggi i giocatori direttamente dal foglio SELEZIONE per consistenza
+    header = ws_selezione.row_values(1)
+    giocatori = header[jump_giocatri:ultimo_giocatore]
+
+    # Leggi le azioni direttamente dal foglio SELEZIONE per consistenza
+    values = ws_selezione.get_all_values()
+    header = values[0]
+    records = [
+        dict(zip(header, row))
+        for row in values[1:]
+        if len(row) > 0
+    ]
+    azioni = [r['AZIONE'] for r in records if r.get('CODICE') != '']
     
 
     last_week = max([r['Settimana'] for r in ws_storico.get_all_records()] + [0])
@@ -355,10 +366,10 @@ def archivia():
 
     df_long = []
 
-    for a, (idx, row) in enumerate(df.iterrows()):
+    for idx, row in df.iterrows():
         for g, v in row.items():
             if v == 'SI' and g in giocatori:
-               df_long.append({'Giocatore':g, 'Azione': azioni[a]}) 
+               df_long.append({'Giocatore':g, 'Azione': row['AZIONE']}) 
 
     df_long = pd.DataFrame(df_long)
 
