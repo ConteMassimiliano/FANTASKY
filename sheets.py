@@ -344,15 +344,9 @@ def archivia():
     rng = to_a1_range(jump_azione - 1, ultima_azione, jump_giocatri, ultimo_giocatore)
     data = ws_pronostici.get(rng)
     
-    cell_list = ws_selezione.range(jump_azione, jump_giocatri, ultima_azione + righe_bonus_malus, ultimo_giocatore)
-    
-    for i, cell in enumerate(cell_list):
-        row_idx = i // (ultimo_giocatore - jump_giocatri + 1)
-        col_idx = i % (ultimo_giocatore - jump_giocatri + 1)
-        if row_idx < len(data) and col_idx < len(data[row_idx]):
-            cell.value = data[row_idx][col_idx]
-    
-    ws_selezione.update_cells(cell_list, value_input_option='USER_ENTERED')
+    # Correzione: uso diretto del range invece del mapping complesso che causava shift
+    rng_write = to_a1_range(jump_azione - 1, ultima_azione, jump_giocatri, ultimo_giocatore)
+    ws_selezione.update(values=data, range_name=rng_write, value_input_option='USER_ENTERED')
     ##########################################################
     
 
