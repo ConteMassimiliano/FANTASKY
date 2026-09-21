@@ -254,15 +254,12 @@ def salva_pronostici():
     ws_selezione = worksheet("SELEZIONE")
     ws_pronostici = worksheet("PRONOSTICI")
     
-    # Copia solo la parte delle selezioni dei giocatori
-    rng = to_a1_range(jump_azione - 1, ultima_azione, jump_giocatri, ultimo_giocatore)
-    data = ws_selezione.get(rng)
-    
     # Prima pulisce il foglio PRONOSTICI
     ws_pronostici.clear()
     
-    # Scrive i dati
-    ws_pronostici.update(data, value_input_option='USER_ENTERED')
+    rng = to_a1_range(jump_azione - 1, ultima_azione, jump_giocatri, ultimo_giocatore)
+    data = ws_selezione.get(rng)
+    ws_pronostici.update(values=data, range_name=rng, value_input_option='USER_ENTERED')
 
 def get_punteggi_azioni():
     ws_parametri = worksheet("PARAMETRI_PUNTEGGIO")
@@ -363,7 +360,7 @@ def archivia():
     for idx, row in df.iterrows():
         for g, v in row.items():
             if v == 'SI' and g in giocatori:
-               df_long.append({'Giocatore':g, 'Azione': row['AZIONE']}) 
+                df_long.append({'Giocatore':g, 'Azione': row['AZIONE']}) 
 
     df_long = pd.DataFrame(df_long)
 
