@@ -108,11 +108,15 @@ def get_actions_no_last5(giocatore):
     all_records = ws_storico.get_all_records()
 
     last_week = max([r['Settimana'] for r in all_records] + [0])
-    df = pd.DataFrame(all_records).query(f'Settimana == {last_week}')
+        
+    if len(all_records) > 0:
+        df = pd.DataFrame(all_records).query(f'Settimana == {last_week}')
 
-    last5 = set(df.query(f'Giocatore == "{giocatore}"'))
-
-    return set(azioni) - last5
+        last5 = set(df.query(f'Giocatore == "{giocatore}"')['Azione'])
+        
+        return set(azioni) - last5
+    
+    return set(azioni)
 
 def get_azioni_results():
 

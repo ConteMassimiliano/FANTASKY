@@ -11,7 +11,7 @@ with st.spinner("..."):
 
 giocatore = st.selectbox(
     "Chi sta giocando?",
-    players
+    [p for p in players if p[:9] != 'Giocatore']
 )
 
 if st.button("Continua"):

@@ -7,6 +7,8 @@ st.title("")
 
 with st.spinner("Caricamento classifica"):
     df = get_classifica()
+    
+    df = df.loc[~df['Giocatore'].str.startswith('Giocatore')]
 
     # st.dataframe(df, use_container_width=True)
 
